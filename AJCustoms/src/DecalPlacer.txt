@@ -1,0 +1,39 @@
+import React, { useState } from 'react';
+import { useThree } from '@react-three/fiber';
+import * as THREE from 'three';
+import { useLoader } from '@react-three/fiber';
+
+export function DecalPlacer({ mesh, textureURL }) {
+  const { camera, gl } = useThree();
+  const [decals, setDecals] = useState([]);
+  const texture = useLoader(THREE.TextureLoader, textureURL);
+
+  const handleClick = (event) => {
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2(
+      (event.clientX / gl.domElement.clientWidth) * 2 - 1,
+      -(event.clientY / gl.domElement.clientHeight) * 2 + 1
+    );
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersects = raycaster.intersectObject(mesh.current, true);
+    if (intersects.length > 0) {
+      const { point } = intersects[0];
+      setDecals((prev) => [...prev, { position: point.clone() }]);
+    }
+  };
+
+  gl.domElement.onclick = handleClick;
+
+  return decals.map((decal, i) => (
+    <mesh key={i} position={decal.position}>
+      <planeGeometry args={[0.3, 0.3]} />
+      <meshBasicMaterial
+        map={texture}
+        transparent
+        depthTest
+        depthWrite={false}
+      />
+    </mesh>
+  ));
+}

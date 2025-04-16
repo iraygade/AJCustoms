@@ -1,0 +1,16 @@
+import React, { useRef } from 'react';
+import { useLoader } from '@react-three/fiber';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { DecalPlacer } from './DecalPlacer';
+
+export default function CanvasScene({ sticker }) {
+  const gltf = useLoader(GLTFLoader, '/models/car.glb');
+  const mesh = useRef();
+
+  return (
+    <group>
+      <primitive object={gltf.scene} ref={mesh} scale={1.2} />
+      {sticker && <DecalPlacer mesh={mesh} textureURL={sticker} />}
+    </group>
+  );
+}
